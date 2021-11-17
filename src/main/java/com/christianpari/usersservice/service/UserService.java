@@ -48,6 +48,8 @@ public class UserService {
     admin.setUin(100000000);
     Set<Role> adminRoles = new HashSet<>();
     adminRoles.add(adminRole);
+    adminRoles.add(managerRole);
+    adminRoles.add(employeeRole);
     admin.setRole(adminRoles);
     userDAO.save(admin);
 
