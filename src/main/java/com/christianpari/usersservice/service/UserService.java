@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -23,15 +24,9 @@ public class UserService {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public User registerNewUser(User user) {
-    Role role = roleDAO.findById("employee").get();
-    Set<Role> roles = new HashSet<>();
-    roles.add(role);
-    user.setRole(roles);
-    user.setPassword(getEncodedPassword(user.getPassword()));
-    return userDAO.save(user);
-  }
+  private final Random random = new Random();
 
+  // PostConstruct on this method for mapping in Controller to prefill DB with data
   public void initUsers() {
     Role adminRole = new Role();
     adminRole.setRoleName("admin");
@@ -88,8 +83,66 @@ public class UserService {
 
   }
 
+  // New User creation, defaults to role : employee
+  public User registerNewUser(User user) {
+    Role role = roleDAO.findById("employee").get();
+    Set<Role> roles = new HashSet<>();
+    roles.add(role);
+    user.setRole(roles);
+    user.setUsername(generateUsername(user));
+    user.setPassword(getEncodedPassword(user.getPassword()));
+    user.setUin(generateUin());
+    return userDAO.save(user);
+  }
+
   public String getEncodedPassword(String password) {
     return passwordEncoder.encode(password);
+  }
+
+  private String generateUsername(User user) {
+    // creates a string like: "john a doe -> jad / john doe -> jxd"
+    String starter = generateInitials(
+      user.getFirstName(),
+      user.getMiddleInitial(),
+      user.getLastName()
+    ).toLowerCase();
+
+    String idNumber = generateIdNumber(); // generates 4 digit num 'xxxx'
+
+    while (!isValidUsername(starter + idNumber)) { // querying db to see if username exists
+      idNumber = generateIdNumber();
+    }
+
+    return starter + idNumber;
+  }
+
+  private String generateInitials(String first, String middle, String last) {
+    return first.charAt(0) + (middle.equals("") ? "x" : middle) + last.charAt(0);
+  }
+
+  private String generateIdNumber() {
+    // generates 4 digit string from 0 - 9999
+    return String.format("%04d", random.nextInt(10000));
+  }
+
+  private boolean isValidUsername(String username) {
+    // SQL Query is searching and then returning how many users have the username
+    // if 1 then already taken, 0 means available
+    return userDAO.usernameExists(username) == 0;
+  }
+
+  private int generateUin() {
+    int uin = random.nextInt(1000000000); // generate 0 - 999999999
+    while (!isValidUin(uin)) {
+      uin = random.nextInt(1000000000);
+    }
+    return uin;
+  }
+
+  private boolean isValidUin(int uin) {
+    // SQL Query is searching and then returning how many users have the uin
+    // if 1 then already taken, 0 means available
+    return userDAO.uinExists(uin) == 0;
   }
 
 }
