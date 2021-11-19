@@ -114,7 +114,9 @@ public class UserService {
     return starter + idNumber;
   }
 
-  private String generateInitials(String first, String middle, String last) {
+  private String generateInitials(String first,
+                                  String middle,
+                                  String last) {
     return first.charAt(0) + (middle.equals("") ? "x" : middle) + last.charAt(0);
   }
 
@@ -151,7 +153,9 @@ public class UserService {
     return "Successful USER deletion";
   }
 
-  public String updatePermissions(int uin, String permission) {
+  public String updatePermissions(int uin,
+                                  String permission,
+                                  boolean isAdding) {
     if (userDAO.findById(uin).isEmpty())
       return "USER with UIN: " + uin + " is not found";
 
@@ -162,10 +166,21 @@ public class UserService {
     Role role = roleDAO.findById(permission).get();
     Set<Role> roles = user.getRole();
 
-    if (roles.contains(role))
-      return "USER with UIN: " + uin + " already has permission '" + permission + "'";
+    if (roles.contains(role)) {
+      if (isAdding) {
+        return "USER with UIN: " + uin + " already has permission '" + permission + "'";
+      } else {
+        roles.remove(role);
+        userDAO.save(user);
+        return "USER with UIN: " + uin + " no longer has permission: " + permission;
+      }
+    }
 
-    roles.add(role);
+    if (isAdding)
+      roles.add(role);
+    else
+      return "USER with UIN: " + uin + " doesn't have permission: " + permission;
+
     userDAO.save(user);
     return "USER with UIN: " + uin + " has been granted permission: " + permission;
   }

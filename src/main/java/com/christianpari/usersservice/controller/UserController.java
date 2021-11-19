@@ -28,8 +28,10 @@ public class UserController {
   // PUT
   @PutMapping({"/updatePermissions/{uin}"})
   @PreAuthorize("hasRole('admin')")
-  public String updatePermissions(@PathVariable int uin, @RequestParam String permission) {
-    return service.updatePermissions(uin, permission.toLowerCase());
+  public String updatePermissions(@PathVariable int uin,
+                                  @RequestParam String permission,
+                                  @RequestParam boolean isAdding) {
+    return service.updatePermissions(uin, permission.toLowerCase(), isAdding);
   }
 
   // DELETE
