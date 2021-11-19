@@ -23,7 +23,8 @@ public class JwtUtil {
     return getClaimFromToken(token, Claims::getSubject);
   }
 
-  private <T> T getClaimFromToken(String token, Function<Claims, T> claimResolver) {
+  private <T> T getClaimFromToken(String token,
+                                  Function<Claims, T> claimResolver) {
     final Claims claims = getAllClaimsFromToken(token);
     return claimResolver.apply(claims);
   }
@@ -32,7 +33,8 @@ public class JwtUtil {
     return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
   }
 
-  public boolean validateToken(String token, UserDetails userDetails) {
+  public boolean validateToken(String token,
+                               UserDetails userDetails) {
     String username = getUsernameFromToken(token);
     return ( username.equals(userDetails.getUsername()) && !isTokenExpired(token) );
   }
