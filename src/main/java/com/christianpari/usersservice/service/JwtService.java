@@ -40,14 +40,14 @@ public class JwtService implements UserDetailsService {
 
     String newGeneratedToken = jwtUtil.generateToken(userDetails);
 
-    User user = userDAO.findById(username).get();
+    User user = userDAO.findByUsername(username);
 
     return new JwtResponse(user, newGeneratedToken);
   }
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userDAO.findById(username).get();
+    User user = userDAO.findByUsername(username);
 
     if (user != null) {
       return new org.springframework.security.core.userdetails.User(
