@@ -8,9 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -145,4 +143,30 @@ public class UserService {
     return userDAO.uinExists(uin) == 0;
   }
 
+  public String deleteUser(int uin) {
+    if (userDAO.findById(uin).isPresent())
+      return "USER with UIN: " + uin + " is not found";
+
+    userDAO.deleteById(uin);
+    return "Successful USER deletion";
+  }
+
+  public String updatePermissions(int uin, String permission) {
+    if (userDAO.findById(uin).isEmpty())
+      return "USER with UIN: " + uin + " is not found";
+
+    if (roleDAO.findById(permission).isEmpty())
+      return "'" + permission + "' is not a valid permission type";
+
+    User user = userDAO.findById(uin).get();
+    Role role = roleDAO.findById(permission).get();
+    Set<Role> roles = user.getRole();
+
+    if (roles.contains(role))
+      return "USER with UIN: " + uin + " already has permission '" + permission + "'";
+
+    roles.add(role);
+    userDAO.save(user);
+    return "USER with UIN: " + uin + " has been granted permission: " + permission;
+  }
 }

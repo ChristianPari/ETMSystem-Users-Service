@@ -4,10 +4,7 @@ import com.christianpari.usersservice.entity.User;
 import com.christianpari.usersservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 
@@ -22,9 +19,24 @@ public class UserController {
     service.initUsers();
   }
 
+  // POST
   @PostMapping({"/registerNewUser"})
   public User registerNewUser(@RequestBody User user) {
     return service.registerNewUser(user);
+  }
+
+  // PUT
+  @PutMapping({"/updatePermissions/{uin}"})
+  @PreAuthorize("hasRole('admin')")
+  public String updatePermissions(@PathVariable int uin, @RequestParam String permission) {
+    return service.updatePermissions(uin, permission.toLowerCase());
+  }
+
+  // DELETE
+  @DeleteMapping({"/{uin}"})
+  @PreAuthorize("hasRole('admin')")
+  public String deleteUser(@PathVariable int uin) {
+    return service.deleteUser(uin);
   }
 
   @GetMapping({"/forAdmin"})

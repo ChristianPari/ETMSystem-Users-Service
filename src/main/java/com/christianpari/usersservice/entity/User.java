@@ -12,12 +12,12 @@ import java.util.Set;
 public class User {
 
   @Id
+  private Integer uin;
   private String username;
   private String password;
   private String firstName;
   private String middleInitial;
   private String lastName;
-  private Integer uin;
 
   @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
   @JoinTable(name = "USER_ROLE",

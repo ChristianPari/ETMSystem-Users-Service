@@ -5,7 +5,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface UserDAO extends CrudRepository<User, String> {
+public interface UserDAO extends CrudRepository<User, Integer> {
+
+  @Query(value = "FROM #{#entityName} WHERE username = :username")
+  User findByUsername(@Param("username") String username);
 
   @Query(value = "SELECT COUNT(*) FROM #{#entityName} WHERE username = :username")
   int usernameExists(@Param("username") String username);
